@@ -2,3 +2,5 @@
 .idea
 dataset/
 eda.ipynb
+w600k_r50.onnx
+__pycache__
