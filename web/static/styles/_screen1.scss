@@ -1,0 +1,90 @@
+:root {
+  --font-family: Inter;
+  --white-bg: #FFF;
+  --blue-color: #0067F5;
+}
+
+.start-screen{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+.start-screen-dialog{
+  padding: 48px 48px 32px;
+  border: 1px solid #EDEDED;
+  //box-shadow: 0px 25px 48px 0px #00000029;
+  //box-shadow: 0px 2px 12px 0px #00000033;
+  box-shadow: 0px 1px 4px 0px #00000033;
+  border-radius: 20px;
+  min-width: 448px;
+   &__logo{
+    max-width: 212px;
+    margin-bottom: 16px;
+  }
+  &__title{
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 36px;
+  }
+  hr{
+    background-color: #D3D3D3;
+    margin-bottom: 27px;
+    margin-top: 36px;
+  }
+  &__icon{
+    width: 48px;
+    margin-bottom: 16px;
+  }
+  &__text{
+    margin-bottom: 40px;
+  }
+  button {
+    font-family: var(--font-family);
+    color: var(--white-bg);
+    background: var(--blue-color);
+    padding: 5px 16px;
+    border-radius: 8px;
+    border: none;
+    line-height: 22px;
+    width: 100%;
+  }
+}
+
+.is-dragover {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-family);
+  color: var(--blue-color);
+  position: fixed;
+  left:  0;
+  top:  0;
+  width:  100%;
+  height:  100%;
+  overflow: auto;
+  background: var(--white-bg);
+  z-index: 99;
+}
+
+.drop-file {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 32px;
+  margin-bottom: 16px;
+}
+.drop-file-icon {
+  width: 96px;
+  height: 96px;
+  filter: invert(25%) sepia(84%) saturate(3882%) hue-rotate(207deg) brightness(100%) contrast(103%);
+  margin-bottom: 16px;
+}
+
+.supported-files {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
