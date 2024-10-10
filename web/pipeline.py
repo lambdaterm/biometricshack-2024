@@ -3,6 +3,7 @@ from diffusers import (
     UNet2DConditionModel,
     DPMSolverMultistepScheduler,
 )
+from emb_mapper import EmbeddingMapper
 from typing import List
 import torch
 import cv2
@@ -35,6 +36,10 @@ pipeline = StableDiffusionPipeline.from_pretrained(
     # , device_map='auto'
     ).to(torch.device('cuda'))
 
+mapper = EmbeddingMapper(input_dim=512, output_dim=512)
+mapper.load_state_dict(torch.load("./models/emb_mapper/emb_mapper.pth"))
+mapper.eval()
+
 
 def calculate_cosine_distance(a, b):
     cosine_distance = float(spatial.distance.cosine(a, b))
@@ -56,10 +61,10 @@ if __name__ == '__main__':
 
     print(ort.get_available_providers())
 
-    app = FaceAnalysis(name='antelopev2', root='./', providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
+    app = FaceAnalysis(name='buffalo_l', root='./', providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
     app.prepare(ctx_id=0, det_size=(640, 640))
 
-    img = cv2.imread(r'../images/denis.jpg')
+    img = cv2.imread(r'../images/face.jpg')
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     faces = app.get(img)
 
@@ -70,7 +75,10 @@ if __name__ == '__main__':
 
     template_tensor = faces['embedding']
 
-    id_emb = torch.tensor(faces['embedding'], dtype=torch.float16)[None].cuda()
+    id_emb = torch.tensor(faces['embedding'], dtype=torch.float32)[None]
+
+    id_emb = mapper(id_emb)
+    id_emb = id_emb.to(torch.float16).to(torch.device('cuda'))
     id_emb = id_emb/torch.norm(id_emb, dim=1, keepdim=True)   # normalize embedding
 
     id_emb = project_face_embs(pipeline, id_emb)    # pass through the encoder

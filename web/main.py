@@ -2,6 +2,7 @@ import torch
 import onnxruntime as ort
 from arc2face import CLIPTextModelWrapper, project_face_embs
 from insightface.app import FaceAnalysis
+from emb_mapper import EmbeddingMapper
 
 import time
 from flask import Flask, request, jsonify, make_response, render_template
@@ -48,8 +49,13 @@ pipeline = StableDiffusionPipeline.from_pretrained(
     ).to(torch.device('cuda'))
 
 
-app = FaceAnalysis(name='antelopev2', root='./', providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
+app = FaceAnalysis(name='buffalo_l', root='./', providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
 app.prepare(ctx_id=0, det_size=(224, 224))
+
+mapper = EmbeddingMapper(input_dim=512, output_dim=512)
+mapper.load_state_dict(torch.load("./models/emb_mapper/emb_mapper.pth"))
+mapper.eval()
+
 
 
 def custom_key(in_face):
@@ -107,7 +113,7 @@ def run():
         return add_cors_to_response(request, response)
 
     try:
-        result_image, output_json = generate_images(img, app, pipeline)
+        result_image, output_json = generate_images(img, app, mapper, pipeline)
     except:
         json_dict = {"Status": "Error", "Results": "Processing error"}
         logging.error('Processing error')
