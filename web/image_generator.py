@@ -44,7 +44,7 @@ def gluing_func(imgs: List[np.ndarray], size: int, cos_distances: List[float]) -
     return final_img
 
 
-def generate_images(img: np.ndarray, app, pipeline):
+def generate_images(img: np.ndarray, app, mapper, pipeline):
     set_of_images = []
     set_of_distances = []
 
@@ -55,7 +55,9 @@ def generate_images(img: np.ndarray, app, pipeline):
 
         template_tensor = faces['embedding']
 
-        id_emb = torch.tensor(faces['embedding'], dtype=torch.float16)[None].cuda()
+        mapped_emb = mapper(torch.tensor(faces['embedding'], dtype=torch.float32)[None])
+        id_emb = mapped_emb.to(torch.float16).to(torch.device('cuda'))
+        # id_emb = torch.tensor(id_emb, dtype=torch.float16)[None].cuda()
         id_emb = id_emb/torch.norm(id_emb, dim=1, keepdim=True)
         id_emb = project_face_embs(pipeline, id_emb)
 
@@ -63,7 +65,9 @@ def generate_images(img: np.ndarray, app, pipeline):
         images = pipeline(prompt_embeds=id_emb, num_inference_steps=25, guidance_scale=3.0, num_images_per_prompt=num_images).images
 
         output_json = {
-            "initial_photo": {"Id": 1, "Normed_embedding": np.array(template_tensor).tolist(), "Cosine similarity": 1},
+            "initial_photo": {"Id": 1, "Embedding_buffalo_l": np.array(template_tensor).tolist(),
+                              "Reconstructed_antelopev2_emb": mapped_emb.detach().cpu().numpy().tolist()[0], "Cosine similarity": 1},
+
         }
 
         cnt = 1
@@ -73,7 +77,7 @@ def generate_images(img: np.ndarray, app, pipeline):
             if len(fcs) > 0:
                 vector = fcs[0].embedding
                 sim = calculate_cosine_similarity(template_tensor, vector)
-                output_json["GeneratedImage_"+str(cnt)] = {"Id": cnt, "Normed_embedding": np.array(vector).tolist(), "Cosine similarity": sim}
+                output_json["GeneratedImage_"+str(cnt)] = {"Id": cnt, "Embedding_buffalo_l": np.array(vector).tolist(), "Cosine similarity": sim}
                 cnt += 1
             else:
                 sim = 0
