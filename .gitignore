@@ -1,7 +1,0 @@
-.ipynb_checkpoints
-.idea
-dataset/
-models/
-eda.ipynb
-w600k_r50.onnx
-__pycache__
