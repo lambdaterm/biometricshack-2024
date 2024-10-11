@@ -45,6 +45,7 @@ img = np.array(Image.open('arc2face/assets/examples/freddie.png'))[:,:,::-1]
 
 images, distances, output_json = generate_images(img, app, mapper, pipeline, device)
 
+os.makedirs('recovered', exist_ok=True)
 for i, image in enumerate(images):
     image.save(os.path.join('recovered', f'rec{i}.jpg'))
 print(distances)
