@@ -19,7 +19,7 @@ def move_files_and_remove_folder(source_folder, destination_folder):
 subprocess.check_call(['git', 'clone', 'https://github.com/foivospar/Arc2Face.git', "./arc2face"])
 subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.4.0", "torchvision==0.19.0", "torchaudio==2.4.0", "--index-url", "https://download.pytorch.org/whl/cu124"])
 subprocess.check_call([sys.executable, "-m", "pip", "install", "huggingface_hub==0.24.0", "opencv-python"])
-subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "./arc2face/requirements.txt"])
+subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "./requirements.txt"])
 
 
 from huggingface_hub import hf_hub_download
