@@ -1,1 +1,1 @@
-export const SERVICE_API = 'http://10.105.74.169:7000'
+export const SERVICE_API = 'https://arc2face.idware.info'

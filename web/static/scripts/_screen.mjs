@@ -10,5 +10,14 @@ class Screen {
 	hide() {
 		this.el.classList.add('screen--hide')
 	}
+	showLoading() {
+		this.el.classList.add('screen--loading')
+	}
+	hideLoading() {
+		this.el.classList.remove('screen--loading')
+	}
+	toggleLoading() {
+		this.el.classList.toggle('screen--loading')
+	}
 }
 export { Screen }

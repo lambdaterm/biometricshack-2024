@@ -14,6 +14,7 @@ export class FileUploader {
     addNewFile(event) {
         const files = event.target.files
         this.uploadFile(files)
+        event.target.value = ''
     }
     showUploadModal() {
         this.uploadInputButton.click()

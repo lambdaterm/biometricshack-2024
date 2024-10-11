@@ -35,7 +35,7 @@ const recognizeButton = document.querySelector('.recognize-button')
 
 recognizeButton.addEventListener('click', (event) => {
     // modal.isShowModal(true)
-
+    screen2.showLoading()
     const img = documentManagementFacade.imageManagement.image
     imageToBase64(img).then(base64Image => {
         const base64Data = base64Image.split(',')[1]
@@ -69,14 +69,17 @@ recognizeButton.addEventListener('click', (event) => {
                 } else {
                     documentManagementFacade.jsonManagement.showTextNotFoundWarning()
                 }
+                screen2.hideLoading()
             })
             .catch(error => {
                 console.error('Ошибка при получении данных:', error)
                 modal.showErrorModal(error.message)
+                screen2.hideLoading()
             })
     }).catch(error => {
         console.error('Ошибка при преобразовании изображения:', error)
         modal.showErrorModal(error.message)
+        screen2.hideLoading()
     })
 
     //     const formData = new FormData()
