@@ -32,7 +32,6 @@ class EmbeddingMapper(nn.Module):
 
 
 def custom_key(in_face):
-    print(in_face.det_score)
     return in_face.det_score
 
 
@@ -46,23 +45,27 @@ def calculate_cosine_similarity(a, b):
     return cosine_similarity
 
 
-def generate_images(img: np.ndarray, app, mapper, pipeline, device):
+def generate_images(app, mapper, pipeline, device, img: np.ndarray | None = None, tensor=None, num_images=10, num_inferences=25, guidance_scale=3.0):
     set_of_images = []
-    set_of_distances = []
+    set_of_similarities = []
 
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    faces = app.get(img)
-    faces = sorted(faces, key=lambda x:(x['bbox'][2]-x['bbox'][0])*(x['bbox'][3]-x['bbox'][1]))[-1]  # select largest face (if more than one detected)
+    if img is not None:
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        faces = app.get(img)
+        faces = sorted(faces, key=lambda x:(x['bbox'][2]-x['bbox'][0])*(x['bbox'][3]-x['bbox'][1]))[-1]  # select largest face (if more than one detected)
 
-    template_tensor = faces['embedding']    # buffalo_l embedding
+        template_tensor = faces['embedding']    # buffalo_l embedding
+    elif tensor is not None:
+        template_tensor = tensor
+    else:
+        raise AssertionError('No image or tensor provided')
 
-    mapped_emb = mapper(torch.tensor(faces['embedding'], dtype=torch.float32)[None])  # reconstructed antelopev2 embedding
+    mapped_emb = mapper(torch.tensor(template_tensor, dtype=torch.float32)[None])  # reconstructed antelopev2 embedding
     id_emb = mapped_emb.to(torch.float16).to(device)
     id_emb = id_emb/torch.norm(id_emb, dim=1, keepdim=True)
     id_emb = project_face_embs(pipeline, id_emb)
 
-    num_images = 4
-    images = pipeline(prompt_embeds=id_emb, num_inference_steps=25, guidance_scale=3.0, num_images_per_prompt=num_images).images   # generate new faces
+    images = pipeline(prompt_embeds=id_emb, num_inference_steps=num_inferences, guidance_scale=guidance_scale, num_images_per_prompt=num_images).images   # generate new faces
 
     output_json = {
     "initial_photo": {"Id": 1, "Embedding_buffalo_l": np.array(template_tensor).tolist(),
@@ -83,6 +86,6 @@ def generate_images(img: np.ndarray, app, mapper, pipeline, device):
             sim = 0
 
         set_of_images.append(image)
-        set_of_distances.append(sim)
+        set_of_similarities.append(sim)
 
-    return set_of_images, set_of_distances, output_json
+    return set_of_images, set_of_similarities, output_json
