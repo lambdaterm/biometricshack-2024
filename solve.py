@@ -47,10 +47,14 @@ mapper.eval()
 with open('embedding_v3.pickle', 'rb') as file:
     loaded_list = pickle.load(file)
 
-
-os.makedirs('recovered_3', exist_ok=True)
-similarities_dict2 = dict()
+folder_for_recovered = "recovered_3"
+os.makedirs(folder_for_recovered, exist_ok=True)
+files_done = os.listdir(folder_for_recovered)
+similarities_dict = dict()
 for key, value in tqdm(loaded_list.items()):
+    if key in files_done:
+        print(f"{key} skipped")
+        continue
     best_sim = 0.0
     count = 0
     while count < 15:
@@ -64,10 +68,10 @@ for key, value in tqdm(loaded_list.items()):
             count = 0
         count += 1
 
-    best_image.save(os.path.join('recovered_3', f'{key}'))
-    similarities_dict2[key] = best_sim
-    print(similarities_dict2[key])
+    best_image.save(os.path.join(folder_for_recovered, f'{key}'))
+    similarities_dict[key] = best_sim
+    print(similarities_dict[key])
 
 with open('similarities_3.json', 'w', encoding='utf-8') as file:
     # Сохраняем словарь с отступами для удобного чтения
-    json.dump(similarities_dict2, file, ensure_ascii=False, indent=4)
+    json.dump(similarities_dict, file, ensure_ascii=False, indent=4)
